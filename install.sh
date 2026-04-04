@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install script for Claude Code skills
-# Usage: ./install.sh [skill-name]  — install one skill
-#        ./install.sh --all         — install all skills
+# Usage: ./install.sh [skill-name]  - install one skill
+#        ./install.sh --all         - install all skills
 
 SKILLS_DIR="$HOME/.claude/skills"
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"

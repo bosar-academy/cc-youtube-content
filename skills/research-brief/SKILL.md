@@ -88,7 +88,7 @@ Read the output JSON file. Then analyze across these dimensions:
 **Gap Analysis:**
 - What angles are NOT covered by any top video?
 - What's outdated or no longer accurate?
-- What's poorly explained that {{CHANNEL_NAME}} could do better?
+- What's poorly explained that Bo Sar could do better?
 - Where can the AI-First Framework angle provide unique value?
 
 ### Step 4: Generate the research brief
@@ -165,7 +165,7 @@ Write a structured markdown brief and save to:
 ### Outdated Information
 - [What's changed since top videos were published]
 
-## Blue Ocean Angle for {{CHANNEL_NAME}}
+## Blue Ocean Angle for Bo Sar
 
 ### Recommended Angle
 [1-2 sentence description of the unique angle]
@@ -176,8 +176,8 @@ Write a structured markdown brief and save to:
 - [Reason 3 — based on AI-First Framework positioning]
 
 ### Differentiation
-- vs [Top Competitor 1]: [how {{CHANNEL_NAME}}'s angle differs]
-- vs [Top Competitor 2]: [how {{CHANNEL_NAME}}'s angle differs]
+- vs [Top Competitor 1]: [how Bo Sar's angle differs]
+- vs [Top Competitor 2]: [how Bo Sar's angle differs]
 
 ## Recommended Titles (5 options)
 

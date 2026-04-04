@@ -154,7 +154,7 @@ The generated HTML must include these sections:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{CHANNEL_NAME}} YouTube Analytics — [date]</title>
+    <title>Bo Sar YouTube Analytics — [date]</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
