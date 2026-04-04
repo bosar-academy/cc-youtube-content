@@ -24,14 +24,16 @@ Ask the user for any missing information:
 - `YOUTUBE_API_KEY` environment variable must be set
 - `YOUTUBE_CHANNEL_ID` environment variable must be set (find at youtube.com/account_advanced)
 - Python dependencies: `pip install google-api-python-client`
-- Script location: `~/Projects/content/scripts/_tools/youtube_analytics.py`
+- Script location: `$SKILL_DIR/scripts/youtube_analytics.py` (where `$SKILL_DIR` is this skill's install directory, e.g. `~/.claude/skills/youtube-analytics/`)
 
 Check prerequisites:
 
 ```bash
+SKILL_DIR="${SKILL_DIR:-$HOME/.claude/skills/youtube-analytics}"
 python3 -c "import googleapiclient" 2>/dev/null || pip install google-api-python-client
 test -n "$YOUTUBE_API_KEY" || echo "ERROR: Set YOUTUBE_API_KEY"
 test -n "$YOUTUBE_CHANNEL_ID" || echo "ERROR: Set YOUTUBE_CHANNEL_ID (find at youtube.com/account_advanced)"
+test -f "$SKILL_DIR/scripts/youtube_analytics.py" || echo "ERROR: youtube_analytics.py not found at $SKILL_DIR/scripts/"
 ```
 
 ## Process
@@ -39,7 +41,9 @@ test -n "$YOUTUBE_CHANNEL_ID" || echo "ERROR: Set YOUTUBE_CHANNEL_ID (find at yo
 ### Step 1: Fetch channel data
 
 ```bash
-python3 ~/Projects/content/scripts/_tools/youtube_analytics.py channel \
+SKILL_DIR="${SKILL_DIR:-$HOME/.claude/skills/youtube-analytics}"
+
+python3 "$SKILL_DIR/scripts/youtube_analytics.py" channel \
   --days [DAYS] \
   --max-videos [MAX] \
   --output /tmp/channel-analytics.json
@@ -50,7 +54,7 @@ python3 ~/Projects/content/scripts/_tools/youtube_analytics.py channel \
 For each competitor channel ID:
 
 ```bash
-python3 ~/Projects/content/scripts/_tools/youtube_analytics.py competitor \
+python3 "$SKILL_DIR/scripts/youtube_analytics.py" competitor \
   --channel-id [COMPETITOR_ID] \
   --output /tmp/competitor-[name].json
 ```
@@ -90,15 +94,15 @@ Create a self-contained HTML file with:
 - All data embedded as JavaScript variables
 - Responsive design (works on mobile)
 
-Save to:
+Save to the current working directory:
 ```
-~/Projects/content/assets/dashboards/[YYYY-MM-DD]-dashboard.html
+./[YYYY-MM-DD]-dashboard.html
 ```
 
 ### Step 5: Open the dashboard
 
 ```bash
-open ~/Projects/content/assets/dashboards/[YYYY-MM-DD]-dashboard.html
+open ./[YYYY-MM-DD]-dashboard.html
 ```
 
 ## Dashboard Template
@@ -154,7 +158,7 @@ The generated HTML must include these sections:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bo Sar YouTube Analytics — [date]</title>
+    <title>YouTube Analytics Dashboard — [date]</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>

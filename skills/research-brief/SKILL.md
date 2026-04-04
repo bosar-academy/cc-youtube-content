@@ -23,30 +23,36 @@ Ask the user for any missing information:
 
 - `YOUTUBE_API_KEY` environment variable must be set
 - Python dependencies: `pip install google-api-python-client`
-- Script location: `~/Projects/content/scripts/_tools/research_brief.py`
+- Script location: `$SKILL_DIR/scripts/research_brief.py` (where `$SKILL_DIR` is this skill's install directory, e.g. `~/.claude/skills/research-brief/`)
 
 Check prerequisites before running:
 
 ```bash
+SKILL_DIR="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd || echo "$HOME/.claude/skills/research-brief")"
 python3 -c "import googleapiclient" 2>/dev/null || pip install google-api-python-client
 test -n "$YOUTUBE_API_KEY" || echo "ERROR: Set YOUTUBE_API_KEY environment variable"
+test -f "$SKILL_DIR/scripts/research_brief.py" || echo "ERROR: research_brief.py not found at $SKILL_DIR/scripts/"
 ```
 
 ## Process
 
 ### Step 1: Create output directory
 
+Create the output directory in the current working directory (or a project-specific content directory):
+
 ```bash
-mkdir -p ~/Projects/content/scripts/[video-slug]/
+mkdir -p ./[video-slug]/
 ```
 
 ### Step 2: Run the research script
 
 ```bash
-python3 ~/Projects/content/scripts/_tools/research_brief.py "[topic]" \
+SKILL_DIR="${SKILL_DIR:-$HOME/.claude/skills/research-brief}"
+
+python3 "$SKILL_DIR/scripts/research_brief.py" "[topic]" \
   --max-videos 20 \
   --max-comments 50 \
-  --output ~/Projects/content/scripts/[video-slug]/raw-research.json
+  --output ./[video-slug]/raw-research.json
 ```
 
 This script:
@@ -88,14 +94,14 @@ Read the output JSON file. Then analyze across these dimensions:
 **Gap Analysis:**
 - What angles are NOT covered by any top video?
 - What's outdated or no longer accurate?
-- What's poorly explained that Bo Sar could do better?
-- Where can the AI-First Framework angle provide unique value?
+- What's poorly explained that your channel could do better?
+- Where can your unique angle provide value?
 
 ### Step 4: Generate the research brief
 
 Write a structured markdown brief and save to:
 ```
-~/Projects/content/scripts/[video-slug]/research-brief.md
+./[video-slug]/research-brief.md
 ```
 
 ## Output Format
@@ -165,7 +171,7 @@ Write a structured markdown brief and save to:
 ### Outdated Information
 - [What's changed since top videos were published]
 
-## Blue Ocean Angle for Bo Sar
+## Blue Ocean Angle for Your Channel
 
 ### Recommended Angle
 [1-2 sentence description of the unique angle]
@@ -173,11 +179,11 @@ Write a structured markdown brief and save to:
 ### Why This Works
 - [Reason 1 — based on gap analysis]
 - [Reason 2 — based on viewer pain points]
-- [Reason 3 — based on AI-First Framework positioning]
+- [Reason 3 - based on your unique positioning]
 
 ### Differentiation
-- vs [Top Competitor 1]: [how Bo Sar's angle differs]
-- vs [Top Competitor 2]: [how Bo Sar's angle differs]
+- vs [Top Competitor 1]: [how your channel's angle differs]
+- vs [Top Competitor 2]: [how your channel's angle differs]
 
 ## Recommended Titles (5 options)
 

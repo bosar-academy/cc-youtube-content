@@ -138,7 +138,7 @@ For each title, suggest the thumbnail concept it pairs with:
 Save to the same directory as the script/research brief:
 
 ```
-~/Projects/content/scripts/[video-slug]/titles.md
+./[video-slug]/titles.md
 ```
 
 ```markdown

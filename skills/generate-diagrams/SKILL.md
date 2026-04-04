@@ -21,8 +21,10 @@ Output: `.excalidraw` files (with the illustration embedded as an image) and sta
 
 **Always pass these as `--examples` to Gemini:**
 ```
-~/Projects/content/diagrams/references/
+$SKILL_DIR/assets/references/
 ```
+
+Where `$SKILL_DIR` is this skill's install directory (e.g. `~/.claude/skills/generate-diagrams/`).
 
 These 5 screenshots define the target aesthetic:
 1. **"The Manual Way"** — Chaos diagram: tangled arrows from YouTube to social platforms, character at laptop, brand logos, time annotation
@@ -45,15 +47,21 @@ Ask the user for any missing information:
 
 At least one of Script path or Concept is required.
 
+## Setup Required
+
+Before first use, populate these asset folders in the skill directory (`$SKILL_DIR`):
+
+1. **`$SKILL_DIR/assets/headshots/`** - Add your cutout headshot photo (PNG with transparent background). The Gemini script requires a headshot reference.
+2. **`$SKILL_DIR/assets/references/`** - Add 3-5 reference screenshots that define your target diagram aesthetic. See the "Design References" section above for what makes good references.
+
 ## Prerequisites
 
 - Python dependencies: `pip install requests google-genai Pillow`
-- Gemini generator: `~/Projects/content/my-thumbnails/.claude/skills/youtube-thumbnail/scripts/generate_thumbnail.py`
-- Gemini API key: Load from `~/Projects/content/my-thumbnails/.env` (GEMINI_API_KEY)
-- Excalidraw builder: `~/Projects/content/scripts/_tools/generate_diagrams.py` (for embedding into .excalidraw)
-- Headshot (required by Gemini script): `~/Projects/content/assets/headshots/bohdan-cutout.png`
-- Claude Code starburst icon: `~/Projects/content/my-thumbnails/workspace/refs/claude-icon-square.png`
-- Reference screenshots: `~/Projects/content/diagrams/references/*.png`
+- `GEMINI_API_KEY` environment variable must be set
+- Gemini generator script: `$SKILL_DIR/scripts/generate_thumbnail.py`
+- Excalidraw builder script: `$SKILL_DIR/scripts/generate_diagrams.py` (for embedding into .excalidraw)
+- Headshot: `$SKILL_DIR/assets/headshots/` (user-provided, see Setup above)
+- Reference screenshots: `$SKILL_DIR/assets/references/*.png` (user-provided, see Setup above)
 
 ## Style Guide (embed in EVERY Gemini prompt)
 
@@ -212,7 +220,7 @@ Read the script and find all `[DIAGRAM: name]` markers. For each one, read the s
 
 For each diagram:
 1. **Pick the closest diagram type** from the templates above
-2. **Read the matching reference screenshot** from `~/Projects/content/diagrams/references/`
+2. **Read the matching reference screenshot** from `$SKILL_DIR/assets/references/`
 3. **Fill in the template** with specific content from the script
 4. **List which reference screenshots to pass as `--examples`** (always include the closest match + 1-2 others for general style)
 
@@ -232,16 +240,20 @@ Pick 2-3 reference screenshots that best match each diagram's type:
 ### Step 4: Generate via Gemini
 
 ```bash
-export $(grep GEMINI_API_KEY ~/Projects/content/my-thumbnails/.env | xargs)
+SKILL_DIR="${SKILL_DIR:-$HOME/.claude/skills/generate-diagrams}"
+REFS="$SKILL_DIR/assets/references"
+GEN="$SKILL_DIR/scripts/generate_thumbnail.py"
+HEADSHOT="$(ls "$SKILL_DIR/assets/headshots/"*.png 2>/dev/null | head -1)"
 
-REFS=~/Projects/content/diagrams/references
-GEN=~/Projects/content/my-thumbnails/.claude/skills/youtube-thumbnail/scripts/generate_thumbnail.py
+test -n "$GEMINI_API_KEY" || echo "ERROR: Set GEMINI_API_KEY environment variable"
+test -f "$GEN" || echo "ERROR: generate_thumbnail.py not found at $GEN"
+test -n "$HEADSHOT" || echo "ERROR: No headshot found in $SKILL_DIR/assets/headshots/"
 
-# Generate full-scene diagram (pick 2-3 matching examples)
+# Generate full-scene diagram (pick 2-3 matching examples from your references folder)
 python3 "$GEN" \
-  --headshot ~/Projects/content/assets/headshots/bohdan-cutout.png \
-  --examples "$REFS/Screenshot 2026-03-25 at 10.22.41 AM.png" "$REFS/Screenshot 2026-03-25 at 10.22.46 AM.png" "$REFS/Screenshot 2026-03-25 at 10.22.51 AM.png" \
-  --prompt "[FULL DIAGRAM PROMPT FROM TEMPLATE — include ALL content, layout description, AND style requirements block]" \
+  --headshot "$HEADSHOT" \
+  --examples "$REFS/reference-1.png" "$REFS/reference-2.png" "$REFS/reference-3.png" \
+  --prompt "[FULL DIAGRAM PROMPT FROM TEMPLATE - include ALL content, layout description, AND style requirements block]" \
   --output /tmp/diagram-assets/[diagram-name].png \
   --no-style
 ```
@@ -288,20 +300,20 @@ cat > /tmp/diagram-specs/[name].json << 'SPECEOF'
 }
 SPECEOF
 
-python3 ~/Projects/content/scripts/_tools/generate_diagrams.py build \
+python3 "$SKILL_DIR/scripts/generate_diagrams.py" build \
   --spec /tmp/diagram-specs/[name].json \
   --images "diagram:/tmp/diagram-assets/[name].png" \
-  --output ~/Projects/content/assets/diagrams/[video-slug]/[name].excalidraw
+  --output ./[video-slug]/diagrams/[name].excalidraw
 ```
 
 **Adjust `w` and `h`** to match actual image dimensions from Step 5.
 
 For combined file with multiple diagrams:
 ```bash
-python3 ~/Projects/content/scripts/_tools/generate_diagrams.py combine \
+python3 "$SKILL_DIR/scripts/generate_diagrams.py" combine \
   --specs /tmp/diagram-specs/1-*.json /tmp/diagram-specs/2-*.json \
   --images "diagram1:/tmp/diagram-assets/diagram1.png" "diagram2:/tmp/diagram-assets/diagram2.png" \
-  --output ~/Projects/content/assets/diagrams/[video-slug]/all-diagrams.excalidraw \
+  --output ./[video-slug]/diagrams/all-diagrams.excalidraw \
   --cols 2 --gap 100
 ```
 
@@ -322,8 +334,8 @@ For each generated diagram:
 
 ```bash
 python3 "$GEN" \
-  --headshot ~/Projects/content/assets/headshots/bohdan-cutout.png \
-  --examples "$REFS/Screenshot 2026-03-25 at 10.22.46 AM.png" \
+  --headshot "$HEADSHOT" \
+  --examples "$REFS/reference-1.png" \
   --reference /tmp/diagram-assets/[previous-attempt].png \
   --prompt "Improve this diagram to better match the example style. Specifically: [WHAT TO FIX]. Keep the same content and layout but make it more hand-drawn, more whiteboard-like, with softer colors." \
   --output /tmp/diagram-assets/[name]-v2.png \
@@ -339,9 +351,9 @@ Present all diagrams to the user:
 
 ## Output
 
-All saved to:
+All saved to the current working directory:
 ```
-~/Projects/content/assets/diagrams/[video-slug]/
+./[video-slug]/diagrams/
 ```
 
 Files produced:
@@ -384,7 +396,7 @@ GOOD: "Bottom-left: a simple cartoon character (stick-figure style, like a white
 Before delivering:
 
 ### Style Match
-- [ ] Looks like the reference screenshots in `diagrams/references/`
+- [ ] Looks like the reference screenshots in `$SKILL_DIR/assets/references/`
 - [ ] Hand-drawn whiteboard feel — NOT digital/polished
 - [ ] Soft pastel fills — NOT bold saturated colors
 - [ ] Text is integrated (hand-drawn) — NOT separate Excalidraw text
